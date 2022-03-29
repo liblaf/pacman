@@ -110,14 +110,13 @@ class SearchAgent(Agent):
         if self.searchFunction == None:
             raise Exception("No search function provided for SearchAgent")
         starttime = (
-            time.time()
+            time.perf_counter_ns()
         )  # You can use also time.perf_counter_ns() for more pecision
         problem = self.searchType(state)  # Makes a new search problem
         self.actions = self.searchFunction(problem)  # Find a path
         totalCost = problem.getCostOfActionSequence(self.actions)
         print(
-            "Path found with total cost of %d in %.1f seconds"
-            % (totalCost, time.time() - starttime)
+            f"Path found with total cost of {totalCost} in {time.perf_counter_ns() - starttime} nanoseconds"
         )
         if "_expanded" in dir(problem):
             print("Search nodes expanded: %d" % problem._expanded)
