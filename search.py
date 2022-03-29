@@ -9,6 +9,7 @@ import util
 #            This portion is written for you          #
 #######################################################
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -78,6 +79,7 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
+
 def nullHeuristic(state, problem=None):
     """
     A example of heuristic function which estimates the cost from the current state to the nearest
@@ -85,19 +87,23 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
     sequence of moves will be incorrect, so only use this for tinyMaze.
     """
     from game import Directions
+
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 #####################################################
 # This portion is incomplete.  Time to write code!  #
 #####################################################
+
 
 def depthFirstSearch(problem):
     """
@@ -115,15 +121,18 @@ def depthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
+
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
+
 def uniformCostSearch(problem):
     """Search the node of least cost from the root."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
