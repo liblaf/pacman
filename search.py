@@ -118,23 +118,99 @@ def depthFirstSearch(problem):
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    explored = {}
+
+    def dfs(state=problem.getStartState(), actions: util.Stack = None) -> list:
+        if state in explored:
+            return []
+        actions = actions or util.Stack()
+        if problem.isGoalState(state):
+            return actions.list
+        explored[state] = True
+        for next_state, action, action_cost in problem.expand(state):
+            actions.push(action)
+            next_actions = dfs(next_state, actions)
+            if next_actions:
+                return next_actions
+            actions.pop()
+
+    return dfs()
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    explored = {}  # state -> actions
+    frontier = util.Queue()
+    frontier_data = {}  # state -> actions
+    start_state = problem.getStartState()
+    frontier.push(start_state)
+    frontier_data[start_state] = []
+    while not frontier.isEmpty():
+        current_state = frontier.pop()
+        current_actions = frontier_data[current_state]
+        frontier_data.pop(current_state)
+        if problem.isGoalState(current_state):
+            return current_actions
+        explored[current_state] = current_actions
+        for next_state, action, action_cost in problem.expand(current_state):
+            if not ((next_state in frontier_data) or (next_state in explored)):
+                frontier.push(next_state)
+                frontier_data[next_state] = current_actions + [action]
+    return []
 
 
 def uniformCostSearch(problem):
     """Search the node of least cost from the root."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    explored = {}  # state -> actions, cost
+    frontier = util.PriorityQueue()
+    frontier_data = {}  # state -> actions, cost
+    start_state = problem.getStartState()
+    frontier.push(start_state, 0)
+    frontier_data[start_state] = [], 0
+    while not frontier.isEmpty():
+        current_state = frontier.pop()
+        current_actions, current_cost = frontier_data[current_state]
+        frontier_data.pop(current_state)
+        if problem.isGoalState(current_state):
+            return current_actions
+        explored[current_state] = current_actions, current_cost
+        for next_state, action, action_cost in problem.expand(current_state):
+            next_cost = current_cost + action_cost
+            if not ((next_state in frontier_data) or (next_state in explored)):
+                frontier.push(next_state, next_cost)
+                frontier_data[next_state] = current_actions + [action], next_cost
+            elif (next_state in frontier_data) and (
+                frontier_data[next_state][1] > next_cost
+            ):
+                frontier.update(next_state, next_cost)
+                frontier_data[next_state] = current_actions + [action], next_cost
+    return []
 
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    explored = {}  # state -> actions, g
+    frontier = util.PriorityQueue()
+    frontier_data = {}  # state -> actions, g
+    start_state = problem.getStartState()
+    frontier.push(start_state, 0)
+    frontier_data[start_state] = [], 0
+    while not frontier.isEmpty():
+        current_state = frontier.pop()
+        current_actions, current_g = frontier_data[current_state]
+        frontier_data.pop(current_state)
+        if problem.isGoalState(current_state):
+            return current_actions
+        explored[current_state] = current_actions, current_g
+        for next_state, action, action_cost in problem.expand(current_state):
+            next_g = current_g + action_cost
+            next_h = heuristic(next_state, problem)
+            if not ((next_state in frontier_data) or (next_state in explored)):
+                frontier.push(next_state, next_g + next_h)
+                frontier_data[next_state] = current_actions + [action], next_g
+            elif (next_state in frontier_data) and (
+                frontier_data[next_state][1] > next_g
+            ):
+                frontier.update(next_state, next_g + next_h)
+                frontier_data[next_state] = current_actions + [action], next_g
+    return []
