@@ -304,7 +304,7 @@ class StayEastSearchAgent(SearchAgent):
 
 def yourHeuristic(position, problem, info={}):
     "The heuristic distance for a PositionSearchProblem"
-    return abs(position[0] - problem.goal[0]) + abs(position[1] - problem.goal[1])
+    return util.manhattanDistance(position, problem.goal)
 
 
 class yourSearchAgent(SearchAgent):
