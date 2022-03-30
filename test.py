@@ -13,7 +13,7 @@ def get_layouts(path: str = "./layouts/") -> list:
 
 
 def prepare_problem_1():
-    layouts = ["bigMaze", "mediumMaze", "testMaze", "tinyMaze"]
+    layouts = ["tinyMaze", "mediumMaze", "bigMaze"]
     fns = ["depthFirstSearch", "breadthFirstSearch", "uniformCostSearch", "aStarSearch"]
     heuristics = ["nullHeuristic", "euclideanHeuristic", "yourHeuristic"]
     argvs = []
