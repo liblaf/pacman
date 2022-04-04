@@ -302,9 +302,70 @@ class StayEastSearchAgent(SearchAgent):
 #####################################################
 
 
-def yourHeuristic(position, problem, info={}):
+import numpy as np
+import game
+import pacman
+import search
+
+
+def manhattan_heuristic(position, problem, info={}):
     "The heuristic distance for a PositionSearchProblem"
     return util.manhattanDistance(position, problem.goal)
+
+
+class MySearchProblem(PositionSearchProblem):
+    game_state: pacman.GameState = None
+    food_map: game.Grid = None
+
+    def __init__(
+        self,
+        gameState: pacman.GameState,
+        costFn=lambda x: 1,
+        goal: tuple = (1, 1),
+        start: tuple = None,
+        warn: bool = True,
+        visualize: bool = True,
+    ):
+        super().__init__(gameState, costFn, goal, start, warn, visualize)
+
+        def build_cost_fn(game_state: pacman.GameState):
+            def shortest_distance(
+                wall_map: game.Grid, pos: tuple[int, int]
+            ) -> np.ndarray:
+                res = np.full(
+                    shape=(wall_map.width, wall_map.height), fill_value=np.inf
+                )
+                frontier = util.Queue()
+                frontier.push(item=pos)
+                x, y = pos
+                res[x][y] = 0
+                while not frontier.isEmpty():
+                    current_x, current_y = frontier.pop()
+                    for next_x, next_y in game.Actions.getLegalNeighbors(
+                        position=(current_x, current_y), walls=wall_map
+                    ):
+                        if res[next_x][next_y] < np.inf:
+                            continue
+                        res[next_x][next_y] = res[current_x][current_y] + 1
+                        frontier.push(item=(next_x, next_y))
+                return res
+
+            wall_map: game.Grid = game_state.getWalls()
+            cost_map = np.ones(shape=(wall_map.width, wall_map.height))
+            for ghost_x, ghost_y in game_state.getGhostPositions():
+                cost_map += (
+                    wall_map.width
+                    * wall_map.height
+                    / shortest_distance(wall_map=wall_map, pos=(ghost_x, ghost_y))
+                )
+            return lambda pos: cost_map[pos[0]][pos[1]]
+
+        self.game_state = gameState
+        self.food_map = gameState.getFood().deepCopy()
+        self.costFn = build_cost_fn(game_state=gameState)
+
+    def isGoalState(self, state: tuple) -> bool:
+        return self.food_map[state[0]][state[1]]
 
 
 class yourSearchAgent(SearchAgent):
@@ -313,5 +374,19 @@ class yourSearchAgent(SearchAgent):
     """
 
     def __init__(self):
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        super().__init__(prob="MySearchProblem")
+
+        def MySearchFunction(problem: MySearchProblem):
+            actions: list = []
+            while problem.food_map.count():
+                actions_to_next_food: list = search.uniformCostSearch(problem=problem)
+                for action in actions_to_next_food:
+                    problem.startState = problem.getNextState(
+                        state=problem.startState, action=action
+                    )
+                actions += actions_to_next_food
+                problem.food_map[problem.startState[0]][problem.startState[1]] = False
+            problem.startState = problem.game_state.getPacmanPosition()
+            return actions
+
+        self.searchFunction = MySearchFunction
